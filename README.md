@@ -13,16 +13,21 @@ This repository provides example scripts built on top of RocketPy to run dispers
 If you have any questions about these scripts or how to use them, please reach out:
 
 mariacuevasabad@gmail.com
+## Setup
+
+Make sure you are using **Python 3.12 or newer**.
+
 
 ## Editing RocketPy Source (`flight.py`)
 
 > **Important:** RocketPy hardcodes the simulation `max_time` to **600 seconds**. For cases such as *main-only recovery*, this is not sufficient and can truncate the trajectory before landing. This value must be increased to properly capture full descent and landing dispersion.
 
-To modify this, edit the RocketPy source inside your conda environment. The exact environment name and file paths will depend on your setup; the example below shows a typical workflow.
+To modify this, edit the RocketPy source code installed on your system. The exact file path will depend on your Python installation, but the steps below show a typical workflow.
 
-Activate your environment:
+Install RocketPy from the terminal if you have not already:
+
 ```bash
-conda activate rocketpy312
+pip install rocketpy
 ```
 
 Locate where RocketPy is installed:

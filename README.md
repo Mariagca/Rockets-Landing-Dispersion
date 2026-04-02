@@ -108,9 +108,22 @@ These soundings provide altitude-dependent profiles of:
 
 --
 
-Updating the Simulation
+### Updating the Simulation
 
-After generating a sounding, copy the resulting URL and update your atmospheric input in your configuration file (e.g., `rocket_params.py`):
+After generating a sounding, copy the resulting URL and update your atmospheric input in your configuration file (e.g., `rocket_params.py`).
 
-```python
-self.atmosphere_file = "https://weather.uwyo.edu/cgi-bin/sounding?region=naconf&TYP
+For example:
+
+```bash
+self.atmosphere_file = "https://weather.uwyo.edu/cgi-bin/sounding?region=naconf&TYPE=TEXT%3ALIST&YEAR=2026&MONTH=04&FROM=0212&TO=0212&STNM=72672"
+```
+### Selecting Realistic Atmospheric Conditions (FAR Site)
+
+To guide the date selection based on specific criteria, historical surface weather data can be used.
+
+A useful reference is:  
+https://www.wunderground.com/dashboard/pws/KCACANTI2/table/2026-03-2/2026-03-2/daily  
+
+This corresponds to a personal weather station near the FAR launch site (Randsburg, CA), which provides historical observations such as wind speed, direction, and temperature.
+
+Navigate to the **monthly view**, then select **table** to see daily averages (e.g., wind speeds). Based on this, choose a representative date and use it in the Wyoming sounding tool to retrieve the corresponding atmospheric profile.

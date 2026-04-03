@@ -14,6 +14,18 @@ The workflow is:
 
 Separate scripts are used for each flight configuration (`nominal`, `main_only`, `drogue_only`, `ballistic`) to keep results organized and avoid confusion when comparing cases. While it is possible to run multiple flight types within a single script, this can lead to instability or crashes in RocketPy, so isolating each case into its own script ensures more reliable execution.
 
+For production runs, aim for ~500–1000 simulations for a stable dispersion estimate, but for testing or debugging you can reduce this (e.g., number_of_simulations=10) in the dispersion.simulate(...) call within each flight type script.
+
+```bash
+
+
+dispersion.simulate(
+    number_of_simulations=20,   # total number of runs (each run samples new random values) aim for like 500-1000
+.....
+)
+```
+
+
 ## Rocket Configuration (`rocket_sim` Class)
 
 The `rocket_sim` class defines the full rocket setup used across all simulations. It centralizes vehicle properties, environment configuration, and helper functions to ensure consistency between deterministic and stochastic runs.

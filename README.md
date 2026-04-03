@@ -2,7 +2,7 @@
 
 These scripts use **RocketPy**, an open-source Python library for high-power rocket trajectory simulation.
 
-RocketPy supports full 6-DOF flight simulations, including motor performance, aerodynamics, parachute descent, and realistic atmospheric conditions. It also includes built-in tools for Monte Carlo analysis, making it well-suited for landing dispersion studies. :contentReference[oaicite:0]{index=0}
+RocketPy supports full 6-DOF flight simulations, including motor performance, aerodynamics, parachute descent, and realistic atmospheric conditions. It also includes built-in tools for Monte Carlo analysis, making it well-suited for landing dispersion studies. 
 
 The documentation is well-developed and covers most use cases, including environment setup, flight simulation, and dispersion analysis:
 

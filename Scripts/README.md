@@ -58,8 +58,9 @@ Running in the background with screen:
 ```bash
 screen -S montecarlo_run
 ```
+Note: it is better to put the script name in quotation marks, especially if the filename contains spaces.
 ```bash
-python your_script.py
+python "your_script.py"
 ```
 Detach and leave it running in the background:
 

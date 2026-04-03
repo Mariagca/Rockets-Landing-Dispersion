@@ -28,7 +28,7 @@ Here it is exactly how you’d write it:
 
 If you are using Windows, or if you are not planning to actively test and instead want to run many hundreds of Monte Carlo simulations, it is recommended to run the code as a .py script rather than a notebook (.ipynb). This makes long runs more stable and easier to manage.
 
-This is the part of the code that runs the Monte Carlo:
+This is the part of the code that runs the Monte Carlo and builds landing dispersion statistics:
 
 
 ```bash
@@ -41,15 +41,15 @@ dispersion.simulate(
 
   include_function_data=False,# do not store full time-series (saves memory, only key outputs)
 
-  parallel=True,              # run simulations in parallel
+  parallel=False,              # run simulations in parallel
   n_workers=10                # number of CPU workers used
 )
 ```
-# runs 500 different trajectories with sampled uncertainties
 
-# → builds landing dispersion statistics
 
-The parallel argument depends on the operating system and environment. In some setups (especially on Windows), parallel execution may not behave as expected. For this reason, in the .py version this is often set to parallel=False, which runs one simulation at a time.
+ builds landing dispersion statistics
+
+The parallel argument depends on the operating system and environment. In some setups (especially on Windows), parallel execution may not behave as expected. For this reason, in the .py version this is set to parallel=False, which runs one simulation at a time.
 
 Because this can take a long time, it is useful to run the script in the background using screen.
 

@@ -78,3 +78,20 @@ This is especially useful for long Monte Carlo runs where you do not want to wai
 
 Everything will be saved automatically: the .csv file containing the dispersion results (which can be used for further analysis or plotting), and the corresponding plot showing the dispersion over the FAR area for a specific flight case.
 This setup is helpful if you are only interested in running the simulations and generating results; if you want to do more detailed or individual analysis (e.g., access intermediate variables, inspect trajectories, or modify parameters interactively), it is better to use the .ipynb file.
+
+
+## Plotting
+`plotting.ipynb` is used to visualize the landing dispersion for all three flight cases together:
+Ballistic
+Main Only
+Nominal (Main + Drogue)
+In the notebook, make sure to update the dataset paths in this section:
+```bash
+datasets = {
+    "Main Only": ("landing_dispersion_main_only.csv", "blue"),
+    "Ballistic": ("landing_dispersion_ballistic.csv", "red"),
+    "Main + Drogue": ("landing_dispersion_nominal.csv", "green"),
+}
+```
+Replace these filenames with the actual .csv files generated from your Monte Carlo runs.
+Each individual simulation (per flight type) already outputs its own corresponding dispersion plot. This notebook is simply used to combine all three cases into a single plot for comparison.

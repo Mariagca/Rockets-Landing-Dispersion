@@ -66,7 +66,7 @@ power_off_drag="/Users/mariacuevas/Desktop/Rockets/Files/drag_off.csv"
 power_on_drag="/Users/mariacuevas/Desktop/Rockets/Files/drag_on.csv"
 
 # Create rocket and its components
-deterministic_rocket, rail_buttons, nose, trapezoidal_fins, tail, drogue, main = rs.rocket_body(deterministic_motor,power_off_drag,power_on_drag, 'nominal')
+deterministic_rocket, rail_buttons, nose, trapezoidal_fins, tail,main = rs.rocket_body(deterministic_motor,power_off_drag,power_on_drag, 'nominal')
 # We pass in: (motor, drag_off, drag_on, flight_type)
 
 # Inputs:
@@ -258,19 +258,7 @@ stochastic_tails=StochasticTail(tail=tail)
 
 # Adding uncertainty to parachute behavior
 
-stochastic_drogue = StochasticParachute(
-    parachute=drogue,
 
-    # cd_s → (mean, std dev)
-    # 10% (1σ) uncertainty in Cd*S (drag area)
-    # captures variability in inflation, packing, and deployment conditions
-    cd_s=(rs.cd_s_drogue, 0.1 * rs.cd_s_drogue),
-
-    # lag → (mean, std dev)
-    # delay between trigger and full deployment
-    # 1 s nominal with 0.2 s (1σ) spread
-    lag=(1.0, 0.2)
-)
 
 
 stochastic_main = StochasticParachute(
@@ -310,7 +298,6 @@ stochastic_rocket.set_rail_buttons(
 # lower_button_position → reference position along the rocket
 
 stochastic_rocket.add_parachute(stochastic_main)
-stochastic_rocket.add_parachute(stochastic_drogue)
 # adds both parachutes with CdS + lag uncertainty
 
 

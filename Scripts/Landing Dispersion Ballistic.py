@@ -1,5 +1,3 @@
-
-
 # Import required libraries for simulation, data handling, and visualization
 
 # Standard libraries for time handling
@@ -19,7 +17,6 @@ from rocketpy import (
     SolidMotor, Fluid, CylindricalTank, MassFlowRateBasedTank,
     HybridMotor, GenericMotor
 )
-import time
 
 # RocketPy stochastic (Monte Carlo variation) components
 from rocketpy.stochastic import (
@@ -33,7 +30,12 @@ from rocketpy.stochastic import (
     StochasticTail,
     StochasticTrapezoidalFins,
     StochasticGenericMotor
+
 )
+
+
+
+import time
 
 # Geospatial raster handling (maps, terrain)
 import rasterio
@@ -44,7 +46,6 @@ from pyproj import Transformer
 
 # Custom rocket simulation wrapper/module
 from rocket_pams import rocket_sim
-
 
 
 # Creating rocket simulation object
@@ -60,29 +61,45 @@ thrust_curve = '/Users/mariacuevas/Desktop/Rockets/Open Rocket/Q-8159_columbia-h
 deterministic_motor = rs.rocket_motor(thrust_curve)  
 
 
-
-power_off_drag="/Users/mariacuevas/Desktop/Rockets/Files/drag_off.csv"
-
-power_on_drag="/Users/mariacuevas/Desktop/Rockets/Files/drag_on.csv"
+power_off_drag = "/Users/mariacuevas/Desktop/Rockets/Files/drag_off.csv"
+power_on_drag  = "/Users/mariacuevas/Desktop/Rockets/Files/drag_on.csv"
 
 # Create rocket and its components
-deterministic_rocket, rail_buttons, nose, trapezoidal_fins, tail, drogue, main = rs.rocket_body(deterministic_motor,power_off_drag,power_on_drag, 'nominal')
+deterministic_rocket, rail_buttons, nose, trapezoidal_fins, tail = rs.rocket_body(
+    deterministic_motor, power_off_drag, power_on_drag, 'ballistic'
+)
+
 # We pass in: (motor, drag_off, drag_on, flight_type)
 
-# Inputs:
 # motor → motor used for the simulation
 
 # power_off_drag → drag when motor is OFF
-# (Rocket.power_off_drag: drag coefficient vs Mach when not thrusting)
+# (drag coefficient vs Mach when not thrusting)
 
 # power_on_drag → drag when motor is ON
-# (Rocket.power_on_drag: drag coefficient vs Mach during burn)
+# (drag coefficient vs Mach during burn)
 
-# flight_type → type of recovery scenario:
-# 'nominal' → drogue + main both deploy  
-# 'main_only' → only main deploys  
-# 'drogue_only' → only drogue deploys  
-# 'ballistic' → no parachutes (free fall)
+# flight_type → determines which parachutes are added AND what gets returned:
+
+# 'nominal'
+# → both drogue and main parachutes are added
+# → returns: rocket, components, drogue, main
+
+# 'main_only'
+# → only main parachute is added
+# → returns: rocket, components, main (NO drogue returned)
+
+# 'drogue_only'
+# → only drogue parachute is added
+# → returns: rocket, components, drogue (NO main returned)
+
+# 'ballistic'
+# → no parachutes are added
+# → returns: only rocket and components (NO drogue or main returned)
+
+# Important:
+# the number of returned variables depends on flight_type
+# → need to unpack accordingly when calling the function
 
 
 
@@ -107,7 +124,6 @@ deterministic_flight = Flight(
 # heading → launch heading angle relative to north given in degrees.
 
 
-
 # Extract key motor and rocket parameters (baseline values)
 
 tb_nom = deterministic_motor.burn_out_time
@@ -120,7 +136,6 @@ x_cm_nom = deterministic_rocket.center_of_mass_without_motor
 
 # These are the nominal (baseline) values from the deterministic setup
 # We will vary these later to introduce uncertainty in the simulations
-
 
 
 
@@ -199,6 +214,9 @@ stochastic_tails = StochasticTail(tail=tail)
 # each run samples from these Gaussian distributions (1σ = values above)
 # → produces slightly different trajectories → gives landing dispersion
 
+
+
+
 stochastic_motor = StochasticGenericMotor(
     generic_motor=deterministic_motor,  # Nominal GenericMotor used as the baseline for Monte Carlo
 
@@ -256,39 +274,6 @@ stochastic_tails=StochasticTail(tail=tail)
 
 
 
-# Adding uncertainty to parachute behavior
-
-stochastic_drogue = StochasticParachute(
-    parachute=drogue,
-
-    # cd_s → (mean, std dev)
-    # 10% (1σ) uncertainty in Cd*S (drag area)
-    # captures variability in inflation, packing, and deployment conditions
-    cd_s=(rs.cd_s_drogue, 0.1 * rs.cd_s_drogue),
-
-    # lag → (mean, std dev)
-    # delay between trigger and full deployment
-    # 1 s nominal with 0.2 s (1σ) spread
-    lag=(1.0, 0.2)
-)
-
-
-stochastic_main = StochasticParachute(
-    parachute=main,
-
-    # same idea for main parachute
-    cd_s=(rs.cd_s_main, 0.1 * rs.cd_s_main),
-
-    # deployment delay uncertainty
-    # 1 s nominal with 0.2 s (1σ)
-    lag=(1.0, 0.2)
-)
-
-
-# Both cd_s and lag are sampled from Gaussian distributions
-# → affects descent rate and landing location
-
-
 # Attaching all stochastic components to the rocket
 
 stochastic_rocket.add_motor(stochastic_motor)
@@ -309,9 +294,6 @@ stochastic_rocket.set_rail_buttons(
 # sets rail button positions with uncertainty
 # lower_button_position → reference position along the rocket
 
-stochastic_rocket.add_parachute(stochastic_main)
-stochastic_rocket.add_parachute(stochastic_drogue)
-# adds both parachutes with CdS + lag uncertainty
 
 
 # At this point:
@@ -347,7 +329,6 @@ stochastic_env = StochasticEnvironment(
     wind_velocity_y_factor=(1.0, 0.25),
 )
 
-
 # Defining function to compute longitudinal moment from flight data
 
 def longitudinal_moment(flight):
@@ -365,11 +346,10 @@ custom_data_collector = {
 # this lets us save the max combined moment for each simulation run
 
 
-
 # Setting up Monte Carlo simulation for landing dispersion
 
 dispersion = MonteCarlo(
-    filename="landing_dispersion_nominal",
+    filename="landing_dispersion_ballistic",
 
     # stochastic inputs (all include uncertainty distributions)
     environment=stochastic_env,
@@ -385,29 +365,28 @@ dispersion = MonteCarlo(
 # results are saved under the given filename
 
 
-
 # Run Monte Carlo simulations
 
 dispersion.simulate(
-    number_of_simulations=5,   # total number of runs (each run samples new random values)
+    number_of_simulations=20,   # total number of runs (each run samples new random values) aim for like 500-1000
 
     append=False,               # overwrite previous results (do not add to existing file)
 
     include_function_data=False,# do not store full time-series (saves memory, only key outputs)
 
     parallel=False,              # run simulations in parallel
-    n_workers=1                # doesnt  matter  
+    n_workers=1                # number of CPU workers used
 )
 
 
-time.sleep(5) #giving it enough time for file to appear 
+time.sleep(5)
 
 
-
-
+# runs 500 different trajectories with sampled uncertainties
+# → builds landing dispersion statistics
 
 # Setingt output filename (Monte Carlo automatically appends .outputs.txt)
-filename = "landing_dispersion_nominal.outputs.txt"
+filename = "landing_dispersion_ballistic.outputs.txt"
 # results will always be stored as: <filename>.outputs.txt
 '''
 from earlier
@@ -422,9 +401,6 @@ dispersion = MonteCarlo(
     data_collector=custom_data_collector
 )
 '''
-
-
-
 
 # Initializing storage for results
 dispersion_general_results = []
@@ -483,14 +459,12 @@ for line in dispersion_output_file:
 dispersion_output_file.close()
 
 
-# Total number of simulations loaded
-N = len(dispersion_general_results)
-print("Number of simulations: ", N)
 
 
 # At this point:
 # dispersion_general_results → full data per run
 # dispersion_results → easy access to each variable across all runs
+
 
 
 # Monte Carlo impacts (landing positions)
@@ -520,10 +494,10 @@ df_det = pd.DataFrame({
 df_all = pd.concat([df_mc, df_det], ignore_index=True)
 
 # Saving to CSV file
-df_all.to_csv("landing_dispersion_nominal.csv", index=False)
+df_all.to_csv("landing_dispersion_ballistic.csv", index=False)
 # stores x and y impact points → used later to plot landing dispersion
 
-print("Saved to landing_dispersion_nominal.csv")
+print("Saved to landing_dispersion_ballistic.csv")
 
 
 # ============================================
@@ -532,12 +506,7 @@ print("Saved to landing_dispersion_nominal.csv")
 # 1σ and 2σ ellipses
 # ============================================
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
-import rasterio
-from rasterio.windows import from_bounds
-from pyproj import Transformer
+
 
 # ============================================
 # Monte Carlo (relative coordinates)

@@ -19,8 +19,11 @@ Make sure you are using **Python 3.12 or newer**.
 
 I recommend using Visual Studio Code as your development environment. Once installed, download the following extensions:
 
-Python extension for Visual Studio Code https://marketplace.visualstudio.com/items?itemName=ms-python.python
-Jupyter extension for Visual Studio Code https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter
+Python extension for Visual Studio Code
+https://marketplace.visualstudio.com/items?itemName=ms-python.python
+
+Jupyter extension for Visual Studio Code 
+https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter
 
 This setup makes it much easier to run and debug scripts, especially if you are working with notebooks or running multiple simulations.
 
